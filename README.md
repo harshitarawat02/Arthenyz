@@ -113,5 +113,5 @@ npm run dev
 
 ---
 
-**Author:** Aditi Rathore  
+**Author:** Team Serenity  
 *Hackathon Build — Arthenyx v1.0*
