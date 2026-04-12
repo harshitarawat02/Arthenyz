@@ -131,15 +131,15 @@ const NFIChart = () => {
                 <StatusBadge status={financialData?.sources?.alpha_vantage?.status} />
               </div>
               <p className="text-[10px] text-muted-foreground">Market News Sentiment API</p>
-              {financialData?.sources?.alpha_vantage?.status === "connected" && (
+              {financialData?.sources?.alpha_vantage && (
                 <div className="mt-2 space-y-1 text-[10px]">
-                  <p>Sentiment: <span className="font-mono text-primary">{financialData.sources.alpha_vantage.avgSentiment}</span></p>
-                  <p>NFI Contribution: <span className="font-mono text-warning">{financialData.sources.alpha_vantage.nfiContribution}</span></p>
-                  <p>Articles: <span className="font-mono">{financialData.sources.alpha_vantage.articlesAnalyzed}</span></p>
+                  <p>Avg Sentiment: <span className="font-mono text-primary">{financialData.sources.alpha_vantage.avgSentiment ?? "—"}</span></p>
+                  <p>NFI Contribution: <span className="font-mono text-warning">{financialData.sources.alpha_vantage.nfiContribution ?? "—"}</span></p>
+                  <p>Articles: <span className="font-mono">{financialData.sources.alpha_vantage.articlesAnalyzed ?? "—"}</span></p>
+                  {financialData.sources.alpha_vantage.message && (
+                    <p className="text-muted-foreground/70 pt-1">{financialData.sources.alpha_vantage.message}</p>
+                  )}
                 </div>
-              )}
-              {financialData?.sources?.alpha_vantage?.message && (
-                <p className="mt-1 text-[10px] text-muted-foreground">{financialData.sources.alpha_vantage.message}</p>
               )}
             </div>
 
@@ -150,43 +150,54 @@ const NFIChart = () => {
                 <StatusBadge status={financialData?.sources?.newsdata?.status} />
               </div>
               <p className="text-[10px] text-muted-foreground">Bundled News Articles</p>
-              {financialData?.sources?.newsdata?.status === "connected" && (
+              {financialData?.sources?.newsdata && (
                 <div className="mt-2 space-y-1 text-[10px]">
-                  <p>Sentiment: <span className="font-mono text-primary">{financialData.sources.newsdata.avgSentiment}</span></p>
-                  <p>NFI Contribution: <span className="font-mono text-warning">{financialData.sources.newsdata.nfiContribution}</span></p>
-                  <p>Articles: <span className="font-mono">{financialData.sources.newsdata.articlesAnalyzed}</span></p>
+                  <p>Avg Sentiment: <span className="font-mono text-primary">{financialData.sources.newsdata.avgSentiment ?? "—"}</span></p>
+                  <p>NFI Contribution: <span className="font-mono text-warning">{financialData.sources.newsdata.nfiContribution ?? "—"}</span></p>
+                  <p>Articles: <span className="font-mono">{financialData.sources.newsdata.articlesAnalyzed ?? "—"}</span></p>
+                  {financialData.sources.newsdata.message && (
+                    <p className="text-muted-foreground/70 pt-1">{financialData.sources.newsdata.message}</p>
+                  )}
                 </div>
-              )}
-              {financialData?.sources?.newsdata?.message && (
-                <p className="mt-1 text-[10px] text-muted-foreground">{financialData.sources.newsdata.message}</p>
               )}
             </div>
           </div>
 
-          {/* Live Signals */}
-          {financialData?.dataMode !== "simulation" && (
-            <div className="mt-2">
-              <h4 className="text-[11px] font-semibold mb-2 text-muted-foreground">Latest Signals</h4>
-              <div className="space-y-1 max-h-32 overflow-y-auto">
-                {[
-                  ...(financialData?.sources?.alpha_vantage?.topSignals || []),
-                  ...(financialData?.sources?.newsdata?.topSignals || []),
-                ].slice(0, 5).map((signal, i) => (
-                  <div key={i} className="flex items-center gap-2 text-[10px] p-1.5 rounded bg-muted/20">
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      signal.sentiment === "positive" || signal.sentiment === "Bullish" ? "bg-success" :
-                      signal.sentiment === "negative" || signal.sentiment === "Bearish" ? "bg-destructive" :
-                      "bg-muted-foreground"
-                    }`} />
-                    <span className="truncate flex-1">{signal.title}</span>
-                    <span className="font-mono text-muted-foreground">{signal.score}</span>
-                  </div>
-                ))}
-              </div>
+          {/* Signals — always shown */}
+          <div className="mt-2">
+            <h4 className="text-[11px] font-semibold mb-2 text-muted-foreground flex items-center gap-1.5">
+              Latest Signals
+              {financialData?.dataMode === "simulation" && (
+                <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[9px] font-medium">simulated</span>
+              )}
+            </h4>
+            <div className="space-y-1 max-h-36 overflow-y-auto">
+              {[
+                ...(financialData?.sources?.alpha_vantage?.topSignals || []),
+                ...(financialData?.sources?.newsdata?.topSignals || []),
+              ].slice(0, 6).map((signal, i) => (
+                <div key={i} className="flex items-center gap-2 text-[10px] p-1.5 rounded bg-muted/20">
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                    signal.sentiment === "positive" || signal.sentiment === "Bullish" ? "bg-success" :
+                    signal.sentiment === "negative" || signal.sentiment === "Bearish" ? "bg-destructive" :
+                    "bg-warning"
+                  }`} />
+                  <span className="truncate flex-1">{signal.title}</span>
+                  <span className={`font-mono whitespace-nowrap ${
+                    parseFloat(signal.score) >= 0 ? "text-success" : "text-destructive"
+                  }`}>{signal.score}</span>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
 
-          
+          {financialData?.dataMode === "simulation" && (
+            <p className="text-[10px] text-muted-foreground pt-2 border-t border-border/30">
+              Running in simulation mode — no API keys required.
+              To connect live feeds, add keys in{" "}
+              <span className="text-primary font-medium">Settings → Data Sources</span>.
+            </p>
+          )}
         </motion.div>
       )}
 
@@ -236,16 +247,17 @@ const NFIChart = () => {
 };
 
 const StatusBadge = ({ status }: { status?: string }) => {
-  const config: Record<string, { color: string; label: string }> = {
-    connected: { color: "bg-success text-success", label: "Connected" },
-    rate_limited: { color: "bg-warning text-warning", label: "Rate Limited" },
-    error: { color: "bg-destructive text-destructive", label: "Error" },
-    not_configured: { color: "bg-muted-foreground text-muted-foreground", label: "Not Set" },
+  const config: Record<string, { dot: string; text: string; label: string }> = {
+    connected:      { dot: "bg-success",          text: "text-success",          label: "Live" },
+    simulated:      { dot: "bg-primary",           text: "text-primary",          label: "Simulated" },
+    rate_limited:   { dot: "bg-warning",           text: "text-warning",          label: "Rate Limited" },
+    error:          { dot: "bg-destructive",       text: "text-destructive",      label: "Error" },
+    not_configured: { dot: "bg-muted-foreground",  text: "text-muted-foreground", label: "Simulated" },
   };
-  const c = config[status || "not_configured"] || config.not_configured;
+  const c = config[status ?? "not_configured"] ?? config.not_configured;
   return (
-    <span className={`flex items-center gap-1 text-[10px] font-medium ${c.color.split(" ")[1]}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${c.color.split(" ")[0]}`} />
+    <span className={`flex items-center gap-1 text-[10px] font-medium ${c.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${c.dot} ${status === "simulated" ? "animate-pulse" : ""}`} />
       {c.label}
     </span>
   );
