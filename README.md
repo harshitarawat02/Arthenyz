@@ -82,7 +82,7 @@ Arthenyx/
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/your-username/arthenyx.git](https://github.com/your-username/arthenyx.git)
+git clone [https://github.com/your-username/arthenyz.git](https://github.com/your-username/arthenyz.git)
 cd arthenyx
 ```
 
@@ -106,7 +106,7 @@ uvicorn main:app --reload --port 8000
 ### 3. Frontend Setup (React Dashboard)
 Open a second terminal and navigate to the frontend directory:
 ```bash
-cd frontend
+
 
 # Install dependencies
 npm install
