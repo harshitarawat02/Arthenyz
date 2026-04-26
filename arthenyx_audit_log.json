@@ -1,0 +1,35 @@
+[
+  {
+    "entry_id": "AUD-0001",
+    "timestamp": "2026-04-26T12:56:20.661302",
+    "trigger": "NFI=0.567 spike detected with themes: ['sla-risk', 'demand-slowdown', 'over-prov",
+    "agent_decision": "Cloud over-provisioning due to demand slowdown",
+    "action_taken": "[ACT-E95A999C] Scaled down compute by 35% on us-east-1. Terminated 17 instances. Utilization im",
+    "confidence": 0.91,
+    "nfi_at_trigger": 0.567,
+    "financial_impact_inr": "\u20b91,445/hr \u00b7 \u20b91,040,400/mo",
+    "approval_status": "auto"
+  },
+  {
+    "entry_id": "AUD-0002",
+    "timestamp": "2026-04-26T12:56:20.833361",
+    "trigger": "NFI=0.298 spike detected with themes: ['vendor-overlap', 'sla-risk']",
+    "agent_decision": "Duplicate vendor tooling identified via semantic similarity",
+    "action_taken": "[ACT-6E92714F] Flagged Freshdesk for removal (94% overlap with Zendesk). Recommendation #REC-53",
+    "confidence": 0.84,
+    "nfi_at_trigger": 0.2983,
+    "financial_impact_inr": "\u20b921/hr \u00b7 \u20b915,000/mo",
+    "approval_status": "pending"
+  },
+  {
+    "entry_id": "AUD-0003",
+    "timestamp": "2026-04-26T12:56:20.997243",
+    "trigger": "NFI=0.626 spike detected with themes: ['sla-risk']",
+    "agent_decision": "SLA breach risk from team overload and capacity constraints",
+    "action_taken": "[ACT-7C537D0B] Reassigned 4 critical tickets from Team-A to Team-B. SLA breach averted. P95 lat",
+    "confidence": 0.78,
+    "nfi_at_trigger": 0.6259,
+    "financial_impact_inr": "\u20b9118/hr \u00b7 \u20b985,000/mo",
+    "approval_status": "pending"
+  }
+]
