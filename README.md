@@ -133,6 +133,6 @@ npm run dev
 
 ---
 
-**Author:** Team Serenity  
+**Author:** Team Krshn
 *Hackathon Build — Arthenyx v1.0*
 ```

@@ -3,7 +3,7 @@ import { actionFeed, ActionEntry } from "@/data/mockData";
 import { generateLiveAction } from "@/services/dataService";
 import { useAgentSettings } from "@/contexts/AgentSettingsContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Clock, Loader2 } from "lucide-react";
+import { CheckCircle2, Clock, Loader2, PauseCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +24,27 @@ const statusIcon: Record<string, React.ReactNode> = {
 const ActionFeed = () => {
   const [actions, setActions] = useState<ActionEntry[]>(actionFeed);
   const [selectedAction, setSelectedAction] = useState<ActionEntry | null>(null);
-  const { hitlEnabled, confidenceThreshold } = useAgentSettings();
+  const { hitlEnabled, confidenceThreshold, agents } = useAgentSettings();
+
+  const actionEnabled  = agents.find(a => a.id === "action")?.enabled  ?? true;
+  const decisionEnabled = agents.find(a => a.id === "decision")?.enabled ?? true;
+  // Feed is only alive if at least one of action or decision agents is running
+  const feedActive = actionEnabled || decisionEnabled;
 
   useEffect(() => {
+    if (!feedActive) return; // don't even create an interval
+
     const interval = setInterval(() => {
       const newAction = generateLiveAction();
-      // If HITL is enabled, some actions come in as pending
+
+      // Route to the correct agent based on what's enabled
+      if (!actionEnabled && newAction.agent === "Action Agent") {
+        newAction.agent = "Decision Agent";
+      }
+      if (!decisionEnabled && newAction.agent === "Decision Agent") {
+        newAction.agent = "Action Agent";
+      }
+
       if (hitlEnabled && Math.random() < 0.4) {
         newAction.status = "pending";
       }
@@ -37,7 +52,7 @@ const ActionFeed = () => {
     }, 8000);
 
     return () => clearInterval(interval);
-  }, [hitlEnabled]);
+  }, [hitlEnabled, actionEnabled, decisionEnabled, feedActive]);
 
   const handleApprove = () => {
     if (!selectedAction) return;
@@ -66,10 +81,27 @@ const ActionFeed = () => {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Autonomous Action Feed</h2>
           <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-[10px] text-muted-foreground font-mono">LIVE</span>
+            {feedActive ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                <span className="text-[10px] text-muted-foreground font-mono">LIVE</span>
+              </>
+            ) : (
+              <>
+                <PauseCircle className="w-3.5 h-3.5 text-destructive" />
+                <span className="text-[10px] text-destructive font-mono">PAUSED</span>
+              </>
+            )}
           </div>
         </div>
+
+        {/* Paused banner */}
+        {!feedActive && (
+          <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive font-medium">
+            Action Agent and Decision Agent are both disabled — no new autonomous actions.
+          </div>
+        )}
+
         <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {actions.map((entry) => (

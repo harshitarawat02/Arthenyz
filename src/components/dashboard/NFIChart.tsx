@@ -4,6 +4,7 @@ import { nfiData, NFIDataPoint } from "@/data/mockData";
 import { generateNextNFIPoint } from "@/services/dataService";
 import { fetchFinancialData, getDataModeLabel, type FinancialDataResponse } from "@/services/financialDataService";
 import { motion } from "framer-motion";
+import { useAgentSettings } from "@/contexts/AgentSettingsContext";
 import { Database, Wifi, WifiOff, Info } from "lucide-react";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -22,6 +23,9 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const NFIChart = () => {
   const [data, setData] = useState<NFIDataPoint[]>(nfiData);
+  const { agents } = useAgentSettings();
+  const driftEnabled = agents.find(a => a.id === "drift")?.enabled ?? true;
+  const ingestionEnabled = agents.find(a => a.id === "ingestion")?.enabled ?? true;
   const [financialData, setFinancialData] = useState<FinancialDataResponse | null>(null);
   const [showSources, setShowSources] = useState(false);
   const tickRef = useRef(0);
@@ -29,6 +33,7 @@ const NFIChart = () => {
   // Fetch real financial data on mount and every 60s
   useEffect(() => {
     const fetchData = async () => {
+      if (!ingestionEnabled) return; // Ingestion Agent disabled — no new data
       const result = await fetchFinancialData();
       setFinancialData(result);
     };
@@ -37,9 +42,10 @@ const NFIChart = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Live chart updates every 3 seconds
+  // Live chart updates every 3 seconds — only when drift agent is active
   useEffect(() => {
     const interval = setInterval(() => {
+      if (!driftEnabled) return; // Drift Detection Agent disabled — simulation paused
       tickRef.current += 1;
       const hours = tickRef.current % 24;
       const mins = (tickRef.current * 5) % 60;
@@ -80,6 +86,12 @@ const NFIChart = () => {
       transition={{ delay: 0.3 }}
       className="glass-card p-6"
     >
+      {!driftEnabled && (
+        <div className="mb-4 flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/30 text-xs text-destructive font-medium">
+          <span className="w-2 h-2 rounded-full bg-destructive" />
+          Drift Detection Agent disabled — NFI simulation paused. Re-enable in Settings to resume.
+        </div>
+      )}
       <div className="flex items-center justify-between mb-4">
         <div>
           <h2 className="text-lg font-semibold">Narrative Fragility Index</h2>

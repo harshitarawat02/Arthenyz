@@ -6,6 +6,7 @@ import {
   AlertTriangle, Zap, Brain, Database, TrendingUp, Shield
 } from "lucide-react";
 import { auditLog as initialLog, AuditEntry } from "@/data/mockData";
+import { useAgentSettings } from "@/contexts/AgentSettingsContext";
 
 // ── Live audit entry generator ────────────────────────────────────────────────
 const AGENTS = ["Action Agent", "Decision Agent", "Drift Detection Agent", "Ingestion Agent", "Narrative Agent", "Audit Agent"];
@@ -79,6 +80,8 @@ const agentIcon: Record<string, React.ReactNode> = {
 
 // ── Main component ────────────────────────────────────────────────────────────
 const AuditLog = () => {
+  const { agents } = useAgentSettings();
+  const auditAgentEnabled = agents.find(a => a.id === "audit")?.enabled ?? true;
   const [entries, setEntries] = useState<AuditEntry[]>([...initialLog].reverse());
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -89,10 +92,11 @@ const AuditLog = () => {
   const liveRef = useRef(isLive);
   liveRef.current = isLive;
 
-  // Live entry injection every 12 seconds
+  // Live entry injection every 12 seconds — only when audit agent is active
   useEffect(() => {
     const interval = setInterval(() => {
       if (!liveRef.current) return;
+      if (!auditAgentEnabled) return; // Audit Agent disabled — no new log entries
       const entry = generateLiveEntry();
       setEntries(prev => [entry, ...prev].slice(0, 100));
       setLiveCount(n => n + 1);

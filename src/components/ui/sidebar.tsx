@@ -1,4 +1,4 @@
-import { LayoutDashboard, AlertTriangle, Workflow, ScrollText, Settings, Activity } from "lucide-react";
+import { LayoutDashboard, AlertTriangle, Workflow, ScrollText, Activity, Settings } from "lucide-react";
 import { useAgentSettings } from "@/contexts/AgentSettingsContext";
 
 interface SidebarProps {
@@ -7,18 +7,18 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: "dashboard", label: "Dashboard",           icon: LayoutDashboard },
-  { id: "risks",     label: "Risk Detail",          icon: AlertTriangle },
-  { id: "agents",    label: "Agent Orchestration",  icon: Workflow },
-  { id: "audit",     label: "Audit Log",            icon: ScrollText },
-  { id: "settings",  label: "Settings",             icon: Settings },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { id: "risks", label: "Risk Detail", icon: AlertTriangle },
+  { id: "agents", label: "Agent Orchestration", icon: Workflow },
+  { id: "audit", label: "Audit Log", icon: ScrollText },
+  { id: "settings", label: "Settings", icon: Settings },
 ];
 
 const Sidebar = ({ activeView, onNavigate }: SidebarProps) => {
   const { agents } = useAgentSettings();
-  const activeCount = agents.filter(a => a.enabled).length;
-  const total = agents.length;
-  const allActive = activeCount === total;
+  const activeCount = agents.filter((a) => a.enabled).length;
+  const totalCount = agents.length;
+  const allActive = activeCount === totalCount;
 
   return (
     <aside className="w-64 h-screen border-r border-border/50 bg-card/30 backdrop-blur-xl flex flex-col fixed left-0 top-0 z-30">
@@ -47,23 +47,37 @@ const Sidebar = ({ activeView, onNavigate }: SidebarProps) => {
         ))}
       </nav>
 
-      {/* Dynamic agent status — reflects real enabled/disabled state from Settings */}
       <div className="p-4 border-t border-border/50">
         <div className="glass-card p-3 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className={`w-2 h-2 rounded-full animate-pulse ${allActive ? "bg-success" : "bg-warning"}`} />
-            <span className={`text-xs font-medium ${allActive ? "text-success" : "text-warning"}`}>
-              {allActive ? "System Active" : "Partial Pipeline"}
+            <span
+              className={`w-2 h-2 rounded-full ${
+                activeCount === 0
+                  ? "bg-destructive"
+                  : allActive
+                  ? "bg-success animate-pulse"
+                  : "bg-warning animate-pulse"
+              }`}
+            />
+            <span
+              className={`text-xs font-medium ${
+                activeCount === 0
+                  ? "text-destructive"
+                  : allActive
+                  ? "text-success"
+                  : "text-warning"
+              }`}
+            >
+              {activeCount === 0
+                ? "All Agents Paused"
+                : allActive
+                ? "System Active"
+                : "Partial Mode"}
             </span>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            {activeCount} / {total} agents operational
+            {activeCount} / {totalCount} agents operational
           </p>
-          {!allActive && (
-            <p className="text-[9px] text-warning/70 mt-0.5">
-              {total - activeCount} agent{total - activeCount > 1 ? "s" : ""} disabled
-            </p>
-          )}
         </div>
       </div>
     </aside>

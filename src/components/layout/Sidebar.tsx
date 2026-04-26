@@ -1,4 +1,5 @@
 import { LayoutDashboard, AlertTriangle, Workflow, ScrollText, Activity, Settings } from "lucide-react";
+import { useAgentSettings } from "@/contexts/AgentSettingsContext";
 
 interface SidebarProps {
   activeView: string;
@@ -14,6 +15,11 @@ const navItems = [
 ];
 
 const Sidebar = ({ activeView, onNavigate }: SidebarProps) => {
+  const { agents } = useAgentSettings();
+  const activeCount = agents.filter((a) => a.enabled).length;
+  const totalCount = agents.length;
+  const allActive = activeCount === totalCount;
+
   return (
     <aside className="w-64 h-screen border-r border-border/50 bg-card/30 backdrop-blur-xl flex flex-col fixed left-0 top-0 z-30">
       <div className="p-6 border-b border-border/50">
@@ -44,10 +50,34 @@ const Sidebar = ({ activeView, onNavigate }: SidebarProps) => {
       <div className="p-4 border-t border-border/50">
         <div className="glass-card p-3 text-center">
           <div className="flex items-center justify-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-            <span className="text-xs font-medium text-success">System Active</span>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                activeCount === 0
+                  ? "bg-destructive"
+                  : allActive
+                  ? "bg-success animate-pulse"
+                  : "bg-warning animate-pulse"
+              }`}
+            />
+            <span
+              className={`text-xs font-medium ${
+                activeCount === 0
+                  ? "text-destructive"
+                  : allActive
+                  ? "text-success"
+                  : "text-warning"
+              }`}
+            >
+              {activeCount === 0
+                ? "All Agents Paused"
+                : allActive
+                ? "System Active"
+                : "Partial Mode"}
+            </span>
           </div>
-          <p className="text-[10px] text-muted-foreground">6 agents operational</p>
+          <p className="text-[10px] text-muted-foreground">
+            {activeCount} / {totalCount} agents operational
+          </p>
         </div>
       </div>
     </aside>
