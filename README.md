@@ -1,5 +1,8 @@
 # Arthenyx — Autonomous Cost Intelligence Platform
 
+Team Leader- Harshita Rawat
+Vihaan 9.0 (IEEE DTU)
+
 > A full-stack, multi-agent financial risk intelligence system. Arthenyx ingests enterprise cost signals, computes a proprietary **Narrative Fragility Index (NFI)**, detects spending risks, and autonomously executes corrective actions — all surfaced through a real-time React dashboard.
 
 ---
